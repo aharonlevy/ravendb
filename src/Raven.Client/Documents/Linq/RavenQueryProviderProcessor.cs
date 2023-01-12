@@ -3115,6 +3115,12 @@ The recommended method is to use full text search (mark the field as Analyzed an
                 return;
             }
 
+            Regex isDiscard = new Regex("_+", RegexOptions.IgnoreCase);
+            if (js.StartsWith("include(") && !isDiscard.IsMatch(name))
+            {
+                throw new NotSupportedException("You can't use the include that way try: let _= RavenQuery.Include<>()");
+            }
+
             _declareBuilder ??= new StringBuilder();
             _declareBuilder.Append('\t')
                 .Append("var ").Append(name)
