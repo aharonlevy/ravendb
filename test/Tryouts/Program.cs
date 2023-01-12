@@ -3,6 +3,15 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using FastTests.Blittable;
 using FastTests.Client;
+using SlowTests.Client.Counters;
+using SlowTests.Client.TimeSeries.Replication;
+using SlowTests.Issues;
+using SlowTests.MailingList;
+using SlowTests.Rolling;
+using SlowTests.Server.Documents.ETL.Raven;
+using System.Threading.Tasks;
+using FastTests.Blittable;
+using FastTests.Client;
 using RachisTests;
 using SlowTests.Client.TimeSeries.Replication;
 using SlowTests.Issues;
@@ -20,7 +29,7 @@ namespace Tryouts
             XunitLogging.RedirectStreams = false;
         }
 
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
             Console.WriteLine(Process.GetCurrentProcess().Id);
             for (int i = 0; i < 10_000; i++)
@@ -29,9 +38,9 @@ namespace Tryouts
                 try
                 {
                     using (var testOutputHelper = new ConsoleTestOutputHelper())
-                    using (var test = new SubscriptionsFailover(testOutputHelper))
+                    using (var test = new QueryOnCounters(testOutputHelper))
                     {
-                        await test.ContinueFromThePointIStoppedConcurrentSubscription(1, 20);
+                         /*test.SessionQuerySelectAdressFromIncludeDoc_UsingRavenQueryCounter();*/
                     }
                 }
                 catch (Exception e)

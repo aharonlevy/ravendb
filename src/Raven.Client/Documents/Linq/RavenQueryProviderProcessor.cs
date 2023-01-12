@@ -2749,6 +2749,12 @@ The recommended method is to use full text search (mark the field as Analyzed an
 
         private void SelectMemberAccess(Expression body)
         {
+            if (_declareBuilder != null)
+            {
+                AddReturnStatementToOutputFunction(body);
+                return;
+            }
+
             var memberExpression = ((MemberExpression)body);
 
             var selectPath = GetSelectPath(memberExpression);
@@ -3211,6 +3217,13 @@ The recommended method is to use full text search (mark the field as Analyzed an
                 }
             }
 
+            if (expression is MemberExpression memberExpression)
+            {
+                var name = GetSelectPath(memberExpression.Member);
+
+            }
+
+
             sb.Append(" }");
 
             return sb.ToString();
@@ -3245,6 +3258,7 @@ The recommended method is to use full text search (mark the field as Analyzed an
                 new JavascriptConversionExtensions.DictionarySupport(),
                 JavascriptConversionExtensions.LinqMethodsSupport.Instance,
                 loadSupport ?? new JavascriptConversionExtensions.LoadSupport(),
+                JavascriptConversionExtensions.IncludeSupport.Instance,
                 JavascriptConversionExtensions.MetadataSupport.Instance,
                 JavascriptConversionExtensions.CompareExchangeSupport.Instance,
                 JavascriptConversionExtensions.CounterSupport.Instance,
