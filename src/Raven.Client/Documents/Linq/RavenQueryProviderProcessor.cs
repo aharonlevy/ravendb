@@ -3115,10 +3115,16 @@ The recommended method is to use full text search (mark the field as Analyzed an
                 return;
             }
 
-            Regex isDiscard = new Regex("_+", RegexOptions.IgnoreCase);
-            if (js.StartsWith("include(") && !isDiscard.IsMatch(name))
+            if (js.StartsWith("include("))
             {
-                throw new NotSupportedException("You can't use the include that way try: let _= RavenQuery.Include<>()");
+                Regex isDiscard = new Regex("_+", RegexOptions.IgnoreCase);
+                if (!isDiscard.IsMatch(name))
+                    throw new NotSupportedException("You can't use the include that way try: let _= RavenQuery.Include<T>()");
+                _declareBuilder ??= new StringBuilder();
+                _declareBuilder.Append('\t')
+                    .Append(js).Append(';')
+                    .Append(Environment.NewLine);
+                return;
             }
 
             _declareBuilder ??= new StringBuilder();

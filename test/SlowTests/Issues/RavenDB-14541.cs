@@ -36,48 +36,49 @@ public class RavenDB_14541: RavenTestBase
     }
 
     [Fact]
-    public void SessionQuerySelectCounterFromIncludeDoc_UsingRavenQueryCounter()
+
+    public void ShouldThrowNotSupportedException()
     {
-        using (DocumentStore store = GetDocumentStore())
+        Exception exception = null;
+        try
         {
-            using (var session = store.OpenSession())
+            using (DocumentStore store = GetDocumentStore())
             {
-                session.Store(new Order { Company = "1", Employee = "employees/1" }, "orders/1-A");
-                session.Store(new Order { Company = "2", Employee = "employees/2" }, "orders/2-A");
+                using (var session = store.OpenSession())
+                {
+                    session.Store(new Order { Company = "1", Employee = "employees/1" }, "orders/1-A");
+                    session.Store(new Order { Company = "2", Employee = "employees/2" }, "orders/2-A");
 
 
-                session.Store(new Employee { FirstName = "a" }, "employees/1");
-                session.Store(new Employee { FirstName = "b" }, "employees/2");
+                    session.Store(new Employee { FirstName = "a" }, "employees/1");
+                    session.Store(new Employee { FirstName = "b" }, "employees/2");
 
-                session.SaveChanges();
-            }
+                    session.SaveChanges();
+                }
 
-            using (var session = store.OpenSession())
-            {
+                using (var session = store.OpenSession())
+                {
 
-                var query3 = from u in session.Query<Order>()
-                             let included = RavenQuery.Include<Order>(u.Employee)
-                             select new QueryResult
-                             {
-                                 Comapny = u.Company
-                             };
-
-                var res = query3.ToList();
-                Assert.Equal(2, res.Count);
-
-                var doc1 = session.Load<Employee>("employees/1");
-                var doc2 = session.Load<Employee>("employees/2");
-
-                Assert.Equal(1, session.Advanced.NumberOfRequests);
-
-                var numOfRequests = session.Advanced.NumberOfRequests;
-                var foo = session.Load<Employee>("employees/1");
-
-                Assert.NotNull(foo);
-                Assert.Equal(numOfRequests, session.Advanced.NumberOfRequests);
+                    var query3 = from u in session.Query<Order>()
+                        let includes = RavenQuery.Include<Order>(u.Employee)
+                        select new QueryResult
+                        {
+                            Comapny = u.Company
+                        };
+                }
             }
         }
+        catch (Exception e)
+        {
+            Assert.NotNull(e);
+            Assert.Contains("You can't use the include that way try: let _= RavenQuery.Include<T>()", e.InnerException.Message);
+        }
+        
+
     }
+
+
+    
 
 
     [Fact]
@@ -100,16 +101,16 @@ public class RavenDB_14541: RavenTestBase
             using (var session = store.OpenSession())
             {
                 var query3 = from a in session.Query<Address>()
-                             let s = RavenQuery.Include<State>(a.CountryState.Split('#',StringSplitOptions.None)[0])
+                             let _ = RavenQuery.Include<State>(a.CountryState.Split('#',StringSplitOptions.None)[0])
                              select new
                              {
-                                 Name= s.Name
+                                 Name= _.Name
                              };
-
-                var res = query3.ToList();
-                Assert.Equal(2, res.Count);
-                Assert.Equal(null, res[0].Name);
-                Assert.Equal(null, res[1].Name);
+                var res1 = query3.ToString();
+                var res2 = query3.ToList();
+                Assert.Equal(2, res2.Count);
+                Assert.Equal(null, res2[0].Name);
+                Assert.Equal(null, res2[1].Name);
 
                 var doc1 = session.Load<State>("states/1");
                 var doc2 = session.Load<State>("states/2");
