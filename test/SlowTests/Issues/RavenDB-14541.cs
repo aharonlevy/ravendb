@@ -39,7 +39,6 @@ public class RavenDB_14541: RavenTestBase
 
     public void ShouldThrowNotSupportedException()
     {
-        Exception exception = null;
         try
         {
             using (DocumentStore store = GetDocumentStore())
