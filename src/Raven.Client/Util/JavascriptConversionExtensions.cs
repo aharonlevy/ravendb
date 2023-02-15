@@ -1036,6 +1036,44 @@ namespace Raven.Client.Util
             }
         }
 
+        public class IncludeTimeSeriesSupport : JavascriptConversionExtension
+        {
+            public static readonly IncludeTimeSeriesSupport Instance = new IncludeTimeSeriesSupport();
+
+            public override void ConvertToJavascript(JavascriptConversionContext context)
+            {
+                var methodCallExpression = context.Node as MethodCallExpression;
+
+                if (methodCallExpression?.Method.Name != nameof(RavenQuery.IncludeTimeSeries))
+                    return;
+
+                if (methodCallExpression.Method.DeclaringType != typeof(RavenQuery))
+                    return;
+                if (methodCallExpression.Arguments.Count != 3)
+                    return;
+
+                context.PreventDefault();
+
+                var writer = context.GetWriter();
+                using (writer.Operation(methodCallExpression))
+                {
+                    int argNum = methodCallExpression.Arguments.Count;
+                    writer.Write("_includetimeseries(");
+                    for (var i = 0; i < argNum; i++)
+                    {
+                        context.Visitor.Visit(methodCallExpression.Arguments[i]);
+                        if (i < argNum - 1)
+                            writer.Write(",");
+                    }
+                    /*context.Visitor.Visit(methodCallExpression.Arguments[0]);
+                    writer.Write(").get(");
+                    context.Visitor.Visit(methodCallExpression.Arguments[1]);
+                    writer.Write(", ");
+                    context.Visitor.Visit(methodCallExpression.Arguments[2]);*/
+                    writer.Write(")");
+                }
+            }
+        }
 
         public class MathSupport : JavascriptConversionExtension
         {

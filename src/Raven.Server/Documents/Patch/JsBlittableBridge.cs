@@ -519,8 +519,10 @@ namespace Raven.Server.Documents.Patch
             if (objectInstance == null)
                 return null;
 
-            if (objectInstance is BlittableObjectInstance boi && boi.Changed == false && isNested == false)
-                return boi.Blittable.Clone(context);
+            if (objectInstance is BlittableObjectInstance boi)
+            {
+                if (boi.Changed == false && isNested == false) return boi.Blittable.Clone(context);
+            }
 
             using (var writer = new ManualBlittableJsonDocumentBuilder<UnmanagedWriteBuffer>(context))
             {

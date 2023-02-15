@@ -7,7 +7,9 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Esprima;
 using Esprima.Ast;
+using Esprima.Utils;
 using Nest;
+using NuGet.Protocol;
 using Raven.Client;
 using Raven.Client.Documents.Commands.Batches;
 using Raven.Client.Documents.Indexes;
@@ -478,6 +480,17 @@ function execute(doc, args){
                 {
                     HandleDeclaredFunctionBody(functionDeclaration.Body.ChildNodes);
                 }
+                else if (statement is VariableDeclaration variableDeclaration)
+                {
+                    //if has _timeseries function
+                    // HasIncludeOrLoad = true;
+                    string includeTsfunctionName = "_includetimeseries";
+                    if (statement.ToJsonString().Contains(includeTsfunctionName))
+                    {
+                        HasIncludeOrLoad = true;
+                        return;
+                    }
+                }
             }
         }
 
@@ -487,7 +500,7 @@ function execute(doc, args){
             {
                 if (callExpression.Callee is Identifier identifier)
                 {
-                    if (identifier.Name == "load" || identifier.Name == "include" || identifier.Name == "loadPath")
+                    if (identifier.Name == "load" || identifier.Name == "include" || identifier.Name == "loadPath" || identifier.Name == "_includetimeseries")
                     {
                         HasIncludeOrLoad = true;
                     }

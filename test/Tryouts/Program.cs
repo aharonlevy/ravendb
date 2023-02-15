@@ -38,9 +38,9 @@ namespace Tryouts
                 try
                 {
                     using (var testOutputHelper = new ConsoleTestOutputHelper())
-                    using (var test = new QueryOnCounters(testOutputHelper))
+                    using (var test = new RavenDB_14541(testOutputHelper))
                     {
-                         /*test.SessionQuerySelectAdressFromIncludeDoc_UsingRavenQueryCounter();*/
+                        test.SessionQuerySelectTimeSeriesFromIncludeDoc_UsingRavenQuery();
                     }
                 }
                 catch (Exception e)

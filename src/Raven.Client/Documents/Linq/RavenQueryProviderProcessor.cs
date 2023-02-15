@@ -3117,9 +3117,17 @@ The recommended method is to use full text search (mark the field as Analyzed an
 
             if (js.StartsWith("include("))
             {
-                Regex isDiscard = new Regex("_+", RegexOptions.IgnoreCase);
-                if (!isDiscard.IsMatch(name))
-                    throw new NotSupportedException("You can't use the include that way try: let _= RavenQuery.Include<T>()");
+                isValidVar(name);
+                _declareBuilder ??= new StringBuilder();
+                _declareBuilder.Append('\t')
+                    .Append(js).Append(';')
+                    .Append(Environment.NewLine);
+                return;
+            }
+
+            if (js.StartsWith("_includeTimeseries("))
+            {
+                isValidVar(name);
                 _declareBuilder ??= new StringBuilder();
                 _declareBuilder.Append('\t')
                     .Append(js).Append(';')
@@ -3132,6 +3140,13 @@ The recommended method is to use full text search (mark the field as Analyzed an
                 .Append("var ").Append(name)
                 .Append(" = ").Append(js).Append(';')
                 .Append(Environment.NewLine);
+        }
+
+        private void isValidVar(string name)
+        {
+            Regex isDiscard = new Regex("_+", RegexOptions.IgnoreCase);
+            if (!isDiscard.IsMatch(name))
+                throw new NotSupportedException("You can't use the include that way try: let _= RavenQuery.Include<T>()");
         }
 
         private static void AddPropertyToWrapperObject(string name, string js, StringBuilder wrapper)
@@ -3271,6 +3286,7 @@ The recommended method is to use full text search (mark the field as Analyzed an
                 JavascriptConversionExtensions.LinqMethodsSupport.Instance,
                 loadSupport ?? new JavascriptConversionExtensions.LoadSupport(),
                 JavascriptConversionExtensions.IncludeSupport.Instance,
+                JavascriptConversionExtensions.IncludeTimeSeriesSupport.Instance,
                 JavascriptConversionExtensions.MetadataSupport.Instance,
                 JavascriptConversionExtensions.CompareExchangeSupport.Instance,
                 JavascriptConversionExtensions.CounterSupport.Instance,

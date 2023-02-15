@@ -1382,12 +1382,14 @@ namespace SlowTests.Client.TimeSeries.Session
 
                 using (var session = store.OpenSession())
                 {
-                    var user = session.Query<User>()
+                    var query = session.Query<User>()
                         .Include(i => i.IncludeTimeSeries("Heartrate", baseline.AddMinutes(3), baseline.AddMinutes(5))
                             .IncludeTimeSeries("BloodPressure", baseline.AddMinutes(40), baseline.AddMinutes(45))
-                            .IncludeTimeSeries("Nasdaq", baseline.AddMinutes(15), baseline.AddMinutes(25)))
-                        .First();
+                            .IncludeTimeSeries("Nasdaq", baseline.AddMinutes(15), baseline.AddMinutes(25)));
 
+                    var s = query.ToString();    
+                    var user = query.First();
+                        
                     Assert.Equal(1, session.Advanced.NumberOfRequests);
 
                     Assert.Equal("Oren", user.Name);

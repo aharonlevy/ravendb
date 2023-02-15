@@ -84,10 +84,11 @@ namespace SlowTests.Client.TimeSeries.Issues
 
                 using (var session = store.OpenSession())
                 {
-                    var order = session.Query<Order>()
+                    var quer = session.Query<Order>()
                         .Include(i => i
                             .IncludeDocuments(o => o.Company)
-                            .IncludeTimeSeries("Heartrate"))
+                            .IncludeTimeSeries("Heartrate"));
+                    var order = quer
                         .First();
 
                     // should not go to server
